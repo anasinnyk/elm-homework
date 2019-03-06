@@ -144,6 +144,13 @@ buildStatsUrl itemId ps = crossOrigin "https://myapi.com" ["api", "item", (Strin
     Just x -> [string "startDate" x]
     )
 
+type alias User = { profile : Profile }
+type alias Profile = { address : Address }
+type alias Address = { phone : String }
+
+setPhone : String -> User -> User
+setPhone p u = { u | profile = { address = { phone = p }}}
+
 --------------------- HOMEWORK #3
 
 maybeToList : Maybe a -> List a
