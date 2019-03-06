@@ -86,7 +86,7 @@ convert02 : List { name : Maybe String, email : Maybe String } -> List { name : 
 convert02 l = 
     let 
         isEmpty : { name : Maybe String, email : Maybe String } -> Bool
-        isEmpty s = s.name /= Nothing && s.email /= Nothing
+        isEmpty \s = s.name /= Nothing && s.email /= Nothing
         
         unpack : Maybe String -> String
         unpack el = case el of
@@ -114,7 +114,7 @@ catMaybes l =
         [] -> []
 
 mapMaybes : (a -> Maybe b) -> List a -> List b
-mapMaybes f xs = catMaybes <| List.map (\x -> f x) xs
+mapMaybes f xs = catMaybes <| List.map f xs
 
 bird : Int
 bird =
