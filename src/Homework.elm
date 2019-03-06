@@ -107,12 +107,11 @@ convert03 =
 
 catMaybes : List (Maybe a) -> List a
 catMaybes l = 
-    let
-        unpackJust el = case el of 
-            Just x -> x
-            Nothing -> Debug.todo "It's Never Called"
-    in
-    List.map unpackJust (List.filter ((/=) Nothing) l)
+    case l of
+        x::xs -> case x of
+            Nothing -> catMaybes xs
+            Just v -> v :: catMaybes xs
+        [] -> []
 
 mapMaybes : (a -> Maybe b) -> List a -> List b
 mapMaybes f xs = catMaybes <| List.map (\x -> f x) xs
