@@ -1,5 +1,6 @@
 module Homework exposing (..)
-
+import Debug
+import Url.Builder exposing (crossOrigin, int, string)
 --------------------- HOMEWORK #1
 
 myLast : List a -> Maybe a
@@ -103,6 +104,45 @@ convert03 =
             Nothing -> "<unsepcified>"
     in
         List.map (\r -> { name = unpack r.name, email = unpack r.email })
+
+catMaybes : List (Maybe a) -> List a
+catMaybes l = 
+    let
+        unpackJust el = case el of 
+            Just x -> x
+            Nothing -> Debug.todo "It's Never Called"
+    in
+    List.map unpackJust (List.filter ((/=) Nothing) l)
+
+mapMaybes : (a -> Maybe b) -> List a -> List b
+mapMaybes f xs = catMaybes <| List.map (\x -> f x) xs
+
+bird : Int
+bird =
+    let 
+        notThree x =
+            x /= 3
+
+        incr x =
+            x + 1
+    in
+    List.sum (List.filter notThree (List.map incr [ 1, 2, 3 ]))
+
+-- using <|
+bird2 = List.sum <| List.filter ((/=) 3) <| List.map ((+) 1) [ 1, 2, 3 ]
+
+-- using |>
+bird3 =  List.map ((+) 1) [ 1, 2, 3 ] |> List.filter ((/=) 3) |> List.sum
+
+buildStatsUrl : Int -> { startDate : Maybe String, numElems : Maybe Int } -> String
+buildStatsUrl itemId ps = crossOrigin "https://myapi.com" ["api", "item", (String.fromInt itemId), "stats.json"] <| (++) (case ps.numElems of 
+    Nothing -> []
+    Just x -> [int "numElems" x]
+    )
+    (case ps.startDate of 
+    Nothing -> []
+    Just x -> [string "startDate" x]
+    )
 
 --------------------- HOMEWORK #3
 
