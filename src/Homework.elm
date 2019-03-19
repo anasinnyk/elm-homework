@@ -1,6 +1,7 @@
 module Homework exposing (..)
 import Debug
-import Url.Builder exposing (crossOrigin, int, string)
+import Maybe
+import Url.Builder
 --------------------- HOMEWORK #1
 
 myLast : List a -> Maybe a
@@ -86,7 +87,7 @@ convert02 : List { name : Maybe String, email : Maybe String } -> List { name : 
 convert02 l = 
     let 
         isEmpty : { name : Maybe String, email : Maybe String } -> Bool
-        isEmpty \s = s.name /= Nothing && s.email /= Nothing
+        isEmpty s = s.name /= Nothing || s.email /= Nothing
         
         unpack : Maybe String -> String
         unpack el = case el of
@@ -131,24 +132,32 @@ bird =
 bird2 = List.sum <| List.filter ((/=) 3) <| List.map ((+) 1) [ 1, 2, 3 ]
 
 -- using |>
-bird3 =  List.map ((+) 1) [ 1, 2, 3 ] |> List.filter ((/=) 3) |> List.sum
+bird3 = List.map ((+) 1) [ 1, 2, 3 ] |> List.filter ((/=) 3) |> List.sum
 
 buildStatsUrl : Int -> { startDate : Maybe String, numElems : Maybe Int } -> String
-buildStatsUrl itemId ps = crossOrigin "https://myapi.com" ["api", "item", (String.fromInt itemId), "stats.json"] <| (++) (case ps.numElems of 
-    Nothing -> []
-    Just x -> [int "numElems" x]
-    )
-    (case ps.startDate of 
-    Nothing -> []
-    Just x -> [string "startDate" x]
-    )
+buildStatsUrl itemId ps = Url.Builder.absolute ["https://myapi.com", "api", "item", String.fromInt itemId, "stats.json"] <| (++)
+        (
+            case ps.startDate of 
+                Nothing -> [] 
+                Just x -> [Url.Builder.string "startDate" x]
+        )
+        (
+            case ps.numElems of 
+                Nothing -> []
+                Just x -> [Url.Builder.int "numElems" x]
+        )
 
 type alias User = { profile : Profile }
 type alias Profile = { address : Address }
 type alias Address = { phone : String }
 
 setPhone : String -> User -> User
-setPhone p u = { u | profile = { address = { phone = p }}}
+setPhone p u = 
+    let
+        updateAddress a ph = {a | phone = ph}
+        updateProfile pr a = {pr | address = a}
+    in
+        { u | profile = updateProfile u.profile <| updateAddress u.profile.address p}
 
 --------------------- HOMEWORK #3
 
