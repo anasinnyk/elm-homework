@@ -2,6 +2,7 @@ module Homework exposing (..)
 import Debug
 import Maybe
 import Url.Builder
+import Date exposing (Date, fromIsoString)
 --------------------- HOMEWORK #1
 
 myLast : List a -> Maybe a
@@ -161,6 +162,30 @@ setPhone p u =
 
 --------------------- HOMEWORK #3
 
+updateList : (a -> Bool) -> (a -> Maybe a) -> List a -> List a
+updateList p f l = case l of
+    (x::xs) -> if p x 
+                then
+                    case f x of
+                        Just y -> y :: updateList p f xs
+                        Nothing -> updateList p f xs
+                else
+                    x :: updateList p f xs
+    [] -> []
+
+updateListKv : List (k, v) -> k -> (v -> Maybe v) -> List (k, v)
+updateListKv old k f = 
+    let 
+        predicate : k -> (k, v) -> Bool
+        predicate key (x, _) = x == key
+
+        map : (v -> Maybe v) -> (k, v) -> Maybe (k, v)
+        map fun (x, y) = case fun y of
+            Just v -> Just (x, v)
+            Nothing -> Nothing
+    in
+    updateList (predicate k) (map f) old
+
 maybeToList : Maybe a -> List a
 maybeToList v = case v of
     Just x -> [x]
@@ -175,3 +200,27 @@ isJust : Maybe a -> Bool
 isJust m = case m of
     Just _ -> True
     Nothing -> False
+
+keepOks : List (Result a b) -> List b
+keepOks l = case l of 
+        (x::xs) -> case x of
+                    Ok v -> v :: keepOks xs
+                    Err _ -> keepOks xs
+        [] -> []
+
+mapOk : (b -> c) -> Result a b -> Result a c
+mapOk f res = case res of 
+    Ok v -> Ok (f v)
+    Err x -> Err x
+
+either : (a -> c) -> (b -> c) -> Result a b -> c
+either fa fb res = case res of
+    Ok v -> fb v
+    Err v -> fa v
+
+parseDate : Maybe String -> Maybe Date
+parseDate v = case v of
+    Just s -> case fromIsoString s of
+        Ok r -> Just r
+        Err _ -> Nothing
+    Nothing -> Nothing
